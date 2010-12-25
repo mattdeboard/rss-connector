@@ -18,18 +18,18 @@ def rssdownload(feedurl, last_reference):
 	    return 'The URL provided does not appear to be a valid RSS feed.'
 	for item in feed.entries:
 	    if timegm(item.updated_parsed) > last_reference:
-			messages.append({'url':item.link,
-                                         'timestamp':item.updated_parsed,
-                                         'description':item.title,
-                                         'extra':feed.feed.link,
-                                         'refer':''})
+                messages.append({'url':item.link,
+                                 'timestamp':item.updated_parsed,
+                                 'description':item.title,
+                                 'extra':feed.feed.link,
+                                 'refer':''})
 	last_ref = timegm(messages[len(messages)-1]['timestamp'])
 	return{'messages':messages,
                'last_reference':last_ref,
                'protected':False}
 	
 if __name__ == "__main__":
-    sample_timestamp = timegm(gmtime()) - 15000 #41 minutes prior to start of the test, simply for testing purposes
+    sample_timestamp = timegm(gmtime()) + 15000 #41 minutes prior to start of the test, simply for testing purposes
     g = rssdownload(sys.argv[1], sample_timestamp)
     try:
     	assert type(g) == dict
