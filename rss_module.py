@@ -5,7 +5,8 @@ from time import gmtime
 
 #To-Do:
 # 1. More authoritative manner of determining authenticity of RSS url
-# 2. Regex matching 
+# 2. Regex matching for more reliable determination of what key,value pair from the feed to use as the timestamp
+#    field
 #
 
 def rssdownload(feedurl, last_reference):
