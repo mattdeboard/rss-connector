@@ -1,8 +1,8 @@
-import sys, logging
-import feedparser, lxml
+import sys, logging, httplib2
+import feedparser
 from calendar import timegm
 from time import gmtime
-
+from lxml import etree
 
 #To-Do:
 # 1. More authoritative/less hacky method for determining authenticity of RSS url
@@ -35,8 +35,8 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     
     
     if not feed.feed.has_key['title']:
-        logger.warning('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
-        return 'The URL provided does not appear to be a valid RSS feed.' #String for rendering in browser
+        logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
+        return {'messages':[],'last_reference':last_ref}
     else:
         for item in feed.entries:
             if timegm(item.updated_parsed) > last_reference:
@@ -60,8 +60,15 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
            'last_reference':last_ref,
            'protected':False}
 
-##def linkminer(mlinks):
-##    for item in mlinks:
+def linkminer(mlinks):
+    http = httplib2.Http()
+    response, content = http.request(item, 'GET')
+    html = etree.HTML(content)
+    result = etree.tostring(html, pretty_print=True, method="html")
+    
+    for item in mlinks:
+        
+        
         
 	
 if __name__ == "__main__":
