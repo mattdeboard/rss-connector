@@ -1,8 +1,8 @@
-import sys
-import feedparser
+import sys, logging
+import feedparser, lxml
 from calendar import timegm
 from time import gmtime
-from BeautifulSoup import BeautifulSoup, SoupStrainer
+
 
 #To-Do:
 # 1. More authoritative/less hacky method for determining authenticity of RSS url
