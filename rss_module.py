@@ -82,6 +82,4 @@ def rssdownload(username, feedurl, last_reference=0):
            'last_reference':last_ref,
            'protected':False}
 
-if __name__ == '__main__':
-    unittest.main()
     
