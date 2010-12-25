@@ -1,0 +1,101 @@
+import os, sys, time
+import feedparser
+
+def rss_parse(feedurl):
+	feed = feedparser.parse(feedurl)
+	links = [{i.link:i.title} for i in feed.entries]
+
+
+
+'''
+# Input
+ - user_ref :     The user reference / id for the source.  e.g. For Twitter,
+                  it would be the users Twitter ID, for Delicious,
+                  their username etc.
+ - passed_params: Could be {}, could have whatever you need specific to your
+                  source to be able to connect.  e.g. For Twitter, this is
+                  {"oauth_token": "sometoken", "oauth_secret": "somesecret"}
+ - latest_ref :   This is the last link Trunk.ly knows about.  What this is
+                  is dependent on YOU (this module). When you pass links back
+                  you tell us the latest reference you know off, we store it
+                  and pass it back to you.  In Twitter for example, this will
+                  be the Twitter ID, in Delicious it's the latest date of the
+                  link that we saw.
+                  If required, this might also have some initialisation value
+                  that makes sense for your source - e.g. for Twitter, we set
+                  latest_ref = 0 ,so we get as much history as we can.
+
+This information will be initialized by the site user, stored into mongodb and 
+passed in from a higher level `controller`. Please make sure you use the minimum 
+necessary data type here. For example, we prefer an epoch timestamp instead of a
+formatted iso datetime string when passing messages.
+
+# Basic workflow
+1.    Connect to your source using the parameters (if needed).
+
+2.    Download everything since the latest_ref. into memory. Depending on the
+      API you may need to pass latest_ref to your call, or you might need to
+      do some post processing.  E.g. for delicious, we just grab the last 100
+      links from the RSS feed then process the dates to only find the new links
+      SINCE the latest_ref.
+
+3.    Process the records in memory and only get the ones with with links in
+      them.  This behaviour will depend on what we agree.  For example, with
+      an RSS downloader, are we returning the links to the articles, or are
+      we returning the links IN the articles (or is this optional - in which
+      case it will be controlled by a parameter you set).
+
+4.    Build the link message return structure.
+
+      messages = []
+      for each link in links:
+          messages.append({
+               'url': <the link to store in Trunk.ly>,
+               'timestamp': <time in UTC epoch,
+               'description': <the note / tweet text if any with the link>,
+               'extra': [],   # List of tags e.g. [trunk.ly, awesome, fun]
+               'refer': [],   # List of people mentioned with this. We use this
+                              # with Twitter although it's not actually used.
+                              # For Twitter, would be Twitter names of people
+                              # from a tweet like this:
+                              #   "@alexdong, @timbull Check this link!"
+           })
+
+5.    return {'messages': messages,
+       'last_reference': int(time.time()),
+       'protected': False, }
+'''
+
+
+def download(user_ref, passed_params, latest_ref):
+
+    messages = []
+    
+    # Your code goes here
+    
+    return {'messages': messages,
+            'last_reference': 123456,   # Set to what ever the correct last_reference was updated to.
+            'protected': False, }       # True if the user has deauthorised us i.e. there was an
+                                        # authentication failure (especially for OAuth sources e.g.
+                                        # The Twitter user has removed us as an Authorized source.
+
+
+if __name__ == "__main__":
+    # Set up a some test parameters here
+    # You might need to write a seperate auth_xxxx.py module to work out what these need to be.
+    # If so, let us know we'll need to implement that too.
+
+    # This should be able to run as standalone - we frequently use this to quickly test
+    # if things are working from the command line when debugging problems.
+
+    # NB - Don't give us your credentials here (if they are needed) - tell us how to get our own
+    # set instead.
+
+    '''
+    user_ref = 14687072
+    params = {<your params>}
+    last_reference = <whatever last reference date your planning on using>
+    '''
+
+    messages = download(user_ref, params, last_reference)
+    print messages
