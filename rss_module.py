@@ -14,6 +14,17 @@ from lxml import etree
 # 
 
 def rssdownload(username, feedurl, last_reference=0):
+    ''' --> rssdownload(username, feedurl, last_reference=0)
+
+        'username' is used exclusively for logging purposes at this time.
+        'feedurl' must be a valid RSS feed. Validation is performed by checking
+        the parsed data from the URL for the <title> tag, which is RSS 2.0 standard.
+        If feedurl is not a valid RSS URL by that standard, an empty dictionary object
+        is returned, and an error is logged.
+
+        'last_reference' is the Unix time (UTC Epoch) of the last time this URL was polled.
+        Only links added or updated after last_reference are returned to the user. If there
+        are no new links, an error is logged and an empty dictionary object is returned.'''
 
     messages = []
     feed = feedparser.parse(feedurl)
@@ -39,7 +50,7 @@ def rssdownload(username, feedurl, last_reference=0):
 ##        deeplinks = linkminer(mlinks)
         
     if len(messages) == 0:
-        logger.warning("%s doesn't have anything new for us." % feed.feed.title) 
+        logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         return {'messages':[], 'last_reference':last_ref, 'protected':False}
     
     last_ref = timegm(messages[len(messages)-1]['timestamp'])
