@@ -24,7 +24,7 @@ def rssdownload(username, feedurl, last_reference=0):
     
     if not feed.feed.has_key['title']:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
-        return {'messages':[],'last_reference':last_ref}
+        return {'messages':[],'last_reference':last_ref, 'protected':False}
     else:
         for item in feed.entries:
             if timegm(item.updated_parsed) > last_reference:
@@ -40,7 +40,7 @@ def rssdownload(username, feedurl, last_reference=0):
         
     if len(messages) == 0:
         logger.warning("%s doesn't have anything new for us." % feed.feed.title) 
-        return 'There do not seem to be any new links since the last update.' #String for rendering in browser
+        return {'messages':[], 'last_reference':last_ref, 'protected':False}
     
     last_ref = timegm(messages[len(messages)-1]['timestamp'])
     
