@@ -1,7 +1,8 @@
 import sys
-import feedparser, BeautifulSoup
+import feedparser
 from calendar import timegm
 from time import gmtime
+from BeautifulSoup import BeautifulSoup, SoupStrainer
 
 #To-Do:
 # 1. More authoritative/less hacky method for determining authenticity of RSS url
@@ -9,18 +10,37 @@ from time import gmtime
 #    field
 # 3. Add link-mining capability.
 
-def rssdownload(feedurl, last_reference=0):
+def rssdownload(feedurl, last_reference=0, mode=0):
+    #Added some test cases of known failing cases. You may want to add more.
+    '''
+    >>> rssdownload('http://www.cnn.com', timegm(gmtime())-15000)
+    'The URL provided does not appear to be a valid RSS feed.'
+    >>> rssdownload('http://www.cnn.com', timegm(gmtime())+15000)
+    'The URL provided does not appear to be a valid RSS feed.'
+    >>> rssdownload('http://feeds.feedburner.com/chrisbrogandotcom', timegm(gmtime())-15000)
+    
+    >>> rssdownload('http://feeds.feedburner.com/chrisbrogandotcom', timegm(gmtime())+15000)
+    'There do not seem to be any new links since the last update.'
+    >>> rssdownload('http://rss.cnn.com/rss/cnn_topstories', timegm(gmtime())-15000)
+    
+    >>> rssdownload('http://rss.cnn.com/rss/cnn_topstories', timegm(gmtime())+15000)
+    'There do not seem to be any new links since the last update.'
+    '''
     messages = []
     feed = feedparser.parse(feedurl)
-    try: feed.feed.title
-    except AttributeError: return 'The URL provided does not appear to be a valid RSS feed.'
-    for item in feed.entries:
-        if timegm(item.updated_parsed) > last_reference:
-            messages.append({'url':item.link,
-                             'timestamp':item.updated_parsed,
-                             'description':item.title,
-                             'extra':feed.feed.link,
-                             'refer':''})
+    if not feed.feed.has_key['title']:
+        return 'The URL provided does not appear to be a valid RSS feed.'
+    else:
+        for item in feed.entries:
+            if timegm(item.updated_parsed) > last_reference:
+                messages.append({'url':item.link,
+                                 'timestamp':item.updated_parsed,
+                                 'description':item.title,
+                                 'extra':feed.feed.link,
+                                 'refer':''})
+    if mode == 1:
+        mlinks = [i['url'] for i in messages]
+        deeplinks = linkminer(mlinks)
     if len(messages) == 0:
         return 'There do not seem to be any new links since the last update.'
     last_ref = timegm(messages[len(messages)-1]['timestamp'])
@@ -28,18 +48,41 @@ def rssdownload(feedurl, last_reference=0):
            'last_reference':last_ref,
            'protected':False}
 
-
-    
+##def linkminer(mlinks):
+##    for item in mlinks:
+        
 	
 if __name__ == "__main__":
-    sample_timestamp = timegm(gmtime()) - 15000 #41 minutes prior to start of the test, simply for testing purposes
-    g = rssdownload(sys.argv[1], sample_timestamp)
-    try:
-    	assert type(g) == dict
-    except AssertionError:
-    	print g
+    
+    def testgo(g):
+        if isinstance(g, dict):
+            return 'The sampled feed is %d items long. The above entry is the first item in the list.' % len(g['messages'])
+        else:
+            return g
+        
+    test_params = ['-doc', '-cust', None]
+    if sys.argv[1] in test_params:
+        if sys.argv[1] == '-doc':
+            import doctest
+            doctest.testmod()
+        if sys.argv[1] == '-cust' or '':
+            url = raw_input('Paste URL to test: ')
+            while True:
+                try:
+                    timeframe = raw_input('Set last_ref to past or future [P/f]? ')
+                    assert timeframe.lower() in ('', 'p', 'f')
+                    break
+                except AssertionError:
+                    pass
+            if timeframe.lower() in ('', 'p'):
+                with rssdownload(url, timegm(gmtime())-15000) as test1:
+                    print test1
+            else:
+                with rssdownload(url, timegm(gmtime())+15000) as test1:
+                    print test1
+            result = testgo(test1)
+            print result
     else:
-    	print g['messages'][0]
-    	print 'The sampled feed is %d items long. The above entry is the first item in the list.' % len(g['messages'])
-    finally:
-    	print 'Unhandled exceptions, if any, below:'
+        print 'Valid arguments are -doc (for doctest.testmod() testing) and -cust (for custom URL/last_ref input).'
+        
+
