@@ -8,10 +8,10 @@ from lxml import etree
 # 1. More authoritative/less hacky method for determining authenticity of RSS url
 # 2. Regex matching for more reliable determination of what key,value pair from the feed to use as the timestamp
 #    field
-# 3. Add link-mining capability.
+# 3. Implement "mode 1" (deep link-mining) capabilities
 # 4. Improve doctesting by adding better test cases.
 # 5. Improve command-line testing.
-# 6. Implement "mode 1" (deep link-mining) capabilities
+# 
 
 def rssdownload(username, feedurl, last_reference=0):
 
