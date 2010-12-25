@@ -1,8 +1,7 @@
-import sys, logging, httplib2
+import sys, logging
 import feedparser
 from calendar import timegm
 from time import gmtime
-from lxml import etree
 
 #To-Do:
 # 1. More authoritative/less hacky method for determining authenticity of RSS url
@@ -32,18 +31,17 @@ def rssdownload(username, feedurl, last_reference=0):
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
     
-    
-    if not feed.feed.has_key['title']:
+    try: feed.feed.title
+    except AttributeError:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
-        return {'messages':[],'last_reference':last_ref, 'protected':False}
-    else:
-        for item in feed.entries:
-            if timegm(item.updated_parsed) > last_reference:
-                messages.append({'url':item.link,
-                                 'timestamp':item.updated_parsed,
-                                 'description':item.title,
-                                 'extra':feed.feed.link,
-                                 'refer':''})
+        return {'messages':[],'last_reference':last_reference, 'protected':False}
+    for item in feed.entries:
+        if timegm(item.updated_parsed) > last_reference:
+            messages.append({'url':item.link,
+                             'timestamp':item.updated_parsed,
+                             'description':item.title,
+                             'extra':feed.feed.link,
+                             'refer':''})
 ##                
 ##    if mode == 1:
 ##        mlinks = [i['url'] for i in messages]
@@ -51,7 +49,7 @@ def rssdownload(username, feedurl, last_reference=0):
         
     if len(messages) == 0:
         logger.error("%s doesn't have anything new for us." % feed.feed.title) 
-        return {'messages':[], 'last_reference':last_ref, 'protected':False}
+        return {'messages':[], 'last_reference':last_reference, 'protected':False}
     
     last_ref = timegm(messages[len(messages)-1]['timestamp'])
     
@@ -67,6 +65,6 @@ def rssdownload(username, feedurl, last_reference=0):
 ##    
 ##    for item in mlinks:        
 	
-if __name__ == "__main__":
+#if __name__ == "__main__":
     
     
