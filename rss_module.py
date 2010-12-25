@@ -23,13 +23,15 @@ def rssdownload(feedurl, last_reference):
                                  'description':item.title,
                                  'extra':feed.feed.link,
                                  'refer':''})
+        if len(messages) == 0:
+            return 'There do not seem to be any new links since the last update.'
 	last_ref = timegm(messages[len(messages)-1]['timestamp'])
 	return{'messages':messages,
                'last_reference':last_ref,
                'protected':False}
 	
 if __name__ == "__main__":
-    sample_timestamp = timegm(gmtime()) + 15000 #41 minutes prior to start of the test, simply for testing purposes
+    sample_timestamp = timegm(gmtime()) - 15000 #41 minutes prior to start of the test, simply for testing purposes
     g = rssdownload(sys.argv[1], sample_timestamp)
     try:
     	assert type(g) == dict
