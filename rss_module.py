@@ -56,7 +56,7 @@ if __name__ == "__main__":
     
     def testgo(g):
         if isinstance(g, dict):
-            return 'The sampled feed is %d items long. The above entry is the first item in the list.' % len(g['messages'])
+            return 'The sampled feed is %d items long.' % len(g['messages'])
         else:
             return g
         
