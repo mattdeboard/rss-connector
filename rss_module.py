@@ -4,7 +4,7 @@ from calendar import timegm
 from time import gmtime
 
 #To-Do:
-# 1. More authoritative manner of determining authenticity of RSS url
+# 1. More authoritative/less hacky method for determining authenticity of RSS url
 # 2. Regex matching for more reliable determination of what key,value pair from the feed to use as the timestamp
 #    field
 #
@@ -12,12 +12,10 @@ from time import gmtime
 def rssdownload(feedurl, last_reference):
 	messages = []
 	feed = feedparser.parse(feedurl)
-	try:
-	    feed.feed.title
-	except AttributeError:
-	    return 'The URL provided does not appear to be a valid RSS feed.'
-	for item in feed.entries:
-	    if timegm(item.updated_parsed) > last_reference:
+	try: feed.feed.title
+	except AttributeError: return 'The URL provided does not appear to be a valid RSS feed.'
+        for item in feed.entries:
+            if timegm(item.updated_parsed) > last_reference:
                 messages.append({'url':item.link,
                                  'timestamp':item.updated_parsed,
                                  'description':item.title,
