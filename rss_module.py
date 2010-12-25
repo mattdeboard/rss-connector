@@ -10,7 +10,7 @@ from time import gmtime
 #    field
 # 3. Add link-mining capability.
 
-def rssdownload(feedurl, last_reference=0, mode=0):
+def rssdownload(username, feedurl, last_reference=0, mode=0):
     #Added some test cases of known failing cases. You may want to add more.
     '''
     >>> rssdownload('http://www.cnn.com', timegm(gmtime())-15000)
@@ -26,10 +26,17 @@ def rssdownload(feedurl, last_reference=0, mode=0):
     >>> rssdownload('http://rss.cnn.com/rss/cnn_topstories', timegm(gmtime())+15000)
     'There do not seem to be any new links since the last update.'
     '''
+
     messages = []
     feed = feedparser.parse(feedurl)
+    
+    logger = logging.getLogger('proxy.rss')
+    logger.debug("User %s's update URL is %s" % (username, feedurl))
+    
+    
     if not feed.feed.has_key['title']:
-        return 'The URL provided does not appear to be a valid RSS feed.'
+        logger.warning('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
+        return 'The URL provided does not appear to be a valid RSS feed.' #String for rendering in browser
     else:
         for item in feed.entries:
             if timegm(item.updated_parsed) > last_reference:
@@ -38,12 +45,17 @@ def rssdownload(feedurl, last_reference=0, mode=0):
                                  'description':item.title,
                                  'extra':feed.feed.link,
                                  'refer':''})
+                
     if mode == 1:
         mlinks = [i['url'] for i in messages]
         deeplinks = linkminer(mlinks)
+        
     if len(messages) == 0:
-        return 'There do not seem to be any new links since the last update.'
+        logger.warning("%s doesn't have anything new for us." % feed.feed.title) 
+        return 'There do not seem to be any new links since the last update.' #String for rendering in browser
+    
     last_ref = timegm(messages[len(messages)-1]['timestamp'])
+    
     return{'messages':messages,
            'last_reference':last_ref,
            'protected':False}
