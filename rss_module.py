@@ -39,4 +39,4 @@ if __name__ == "__main__":
     	print g['messages'][0]
     	print 'The sampled feed is %d items long. The above entry is the first item in the list.' % len(g['messages'])
     finally:
-		print 'Unhandled exceptions, if any, below:'
+    	print 'Unhandled exceptions, if any, below:'
