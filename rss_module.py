@@ -1,16 +1,45 @@
-import sys, logging
+import sys, logging, unittest
 import feedparser
 from calendar import timegm
 from time import gmtime
 
 #To-Do:
-# 1. More authoritative/less hacky method for determining authenticity of RSS url
+# 
 # 2. Regex matching for more reliable determination of what key,value pair from the feed to use as the timestamp
 #    field
 # 3. Implement "mode 1" (deep link-mining) capabilities
-# 4. Improve doctesting by adding better test cases.
-# 5. Improve command-line testing.
 # 
+# 
+#
+
+class TestSequenceFunctions(unittest.TestCase):
+
+    def setUp(self):
+        self.username = 'testuser'
+        self.feedurl_invalid = 'http://www.cnn.com'
+        self.feedurl_valid = 'http://rss.cnn.com/rss/cnn_topstories'
+        self.past = timegm(gmtime()) - 15000
+        self.future = timegm(gmtime()) + 15000
+
+    def test_bad_url_past(self):
+        # Make sure an empty dict gets returned for an invalid URL
+        test_feed = rssdownload(self.username, self.feedurl_invalid, self.past)
+        self.assertTrue(len(test_feed['messages'])==0)
+
+    def test_bad_url_future(self):
+        # Make sure an empty dict gets returned for an invalid URL
+        test_feed = rssdownload(self.username, self.feedurl_invalid, self.future)
+        self.assertTrue(len(test_feed['messages'])==0)
+
+    def test_good_url_past(self):
+        # Make sure an empty dict gets returned for a valid URL
+        test_feed = rssdownload(self.username, self.feedurl_valid, self.past)
+        self.assertTrue(len(test_feed['messages'])>0, 'Probably no new links found...')
+
+    def test_good_url_future(self):
+        # Make sure an empty dict gets returned for a valid URL
+        test_feed = rssdownload(self.username, self.feedurl_valid, self.future)
+        self.assertTrue(len(test_feed['messages'])==0)
 
 def rssdownload(username, feedurl, last_reference=0):
     ''' --> rssdownload(username, feedurl, last_reference=0)
@@ -42,10 +71,6 @@ def rssdownload(username, feedurl, last_reference=0):
                              'description':item.title,
                              'extra':feed.feed.link,
                              'refer':''})
-##                
-##    if mode == 1:
-##        mlinks = [i['url'] for i in messages]
-##        deeplinks = linkminer(mlinks)
         
     if len(messages) == 0:
         logger.error("%s doesn't have anything new for us." % feed.feed.title) 
@@ -57,14 +82,6 @@ def rssdownload(username, feedurl, last_reference=0):
            'last_reference':last_ref,
            'protected':False}
 
-##def linkminer(mlinks):
-##    http = httplib2.Http()
-##    response, content = http.request(item, 'GET')
-##    html = etree.HTML(content)
-##    result = etree.tostring(html, pretty_print=True, method="html")
-##    
-##    for item in mlinks:        
-	
-#if __name__ == "__main__":
-    
+if __name__ == '__main__':
+    unittest.main()
     
