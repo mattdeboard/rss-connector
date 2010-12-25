@@ -51,6 +51,7 @@ def rssdownload(username, feedurl, last_reference=0):
         is returned, and an error is logged.
 
         'last_reference' is the Unix time (UTC Epoch) of the last time this URL was polled.
+        This time is determined by getting the time the most recent article was last updated.
         Only links added or updated after last_reference are returned to the user. If there
         are no new links, an error is logged and an empty dictionary object is returned.'''
 
