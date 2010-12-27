@@ -2,7 +2,7 @@ import sys, logging, unittest
 import feedparser
 from calendar import timegm
 from time import gmtime
-
+from operator import itemgetter
 #To-Do:
 # 
 # 
@@ -75,7 +75,8 @@ def rssdownload(username, feedurl, last_reference=0):
     if len(messages) == 0:
         logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         return {'messages':[], 'last_reference':last_reference, 'protected':False}
-    
+
+    messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
     
     return{'messages':messages,
