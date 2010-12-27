@@ -55,7 +55,6 @@ def rssdownload(username, feedurl, last_reference=0):
         are no new links, an error is logged and an empty dictionary object is returned.'''
 
     messages = []
-    urls = []
     feed = feedparser.parse(feedurl)
     
     logger = logging.getLogger('proxy.rss')
@@ -67,7 +66,6 @@ def rssdownload(username, feedurl, last_reference=0):
         return {'messages':[],'last_reference':last_reference, 'protected':False}
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
-            urls.append(item.link)
             messages.append({'url':item.link,
                              'timestamp':timegm(item.updated_parsed),
                              'description':item.title,
@@ -78,7 +76,7 @@ def rssdownload(username, feedurl, last_reference=0):
         logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         return {'messages':[], 'last_reference':last_reference, 'protected':False}
     
-    last_ref = timegm(messages[len(messages)-1]['timestamp'])
+    last_ref = messages[len(messages)-1]['timestamp']
     
     return{'messages':messages,
            'last_reference':last_ref,
