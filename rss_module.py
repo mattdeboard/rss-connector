@@ -71,7 +71,7 @@ def rssdownload(username, feedurl, last_reference=0):
             messages.append({'url':item.link,
                              'timestamp':item.updated_parsed,
                              'description':timegm(item.title),
-                             'extra':feed.feed.link,
+                             'extra':feed.feed.title,
                              'refer':''})
         
     if len(messages) == 0:
