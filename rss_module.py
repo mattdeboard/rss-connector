@@ -5,8 +5,7 @@ from time import gmtime
 
 #To-Do:
 # 
-# 2. Regex matching for more reliable determination of what key,value pair from the feed to use as the timestamp
-#    field
+# 
 # 3. Implement "mode 1" (deep link-mining) capabilities
 # 
 # 
