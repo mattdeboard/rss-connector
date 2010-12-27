@@ -41,7 +41,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test_feed = rssdownload(self.username, self.feedurl_valid, self.future)
         self.assertTrue(len(test_feed['messages'])==0)
 
-def rssdownload(username, feedurl, last_reference=0):
+def rssdownload(username, feedurl, last_reference=0, mode=0):
     ''' --> rssdownload(username, feedurl, last_reference=0)
 
         'username' is used exclusively for logging purposes at this time.
@@ -56,17 +56,19 @@ def rssdownload(username, feedurl, last_reference=0):
         are no new links, an error is logged and an empty dictionary object is returned.'''
 
     messages = []
+    urls = []
     feed = feedparser.parse(feedurl)
     
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
     
-    try: feed.feed.title
-    except AttributeError:
+    try: assert feed.feed.has_key('title')
+    except AssertionError:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
         return {'messages':[],'last_reference':last_reference, 'protected':False}
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
+            urls.append(item.link)
             messages.append({'url':item.link,
                              'timestamp':item.updated_parsed,
                              'description':item.title,
