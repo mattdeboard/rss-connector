@@ -40,7 +40,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test_feed = rssdownload(self.username, self.feedurl_valid, self.future)
         self.assertTrue(len(test_feed['messages'])==0)
 
-def rssdownload(username, feedurl, last_reference=0, mode=0):
+def rssdownload(username, feedurl, last_reference=0):
     ''' --> rssdownload(username, feedurl, last_reference=0)
 
         'username' is used exclusively for logging purposes at this time.
