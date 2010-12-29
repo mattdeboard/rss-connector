@@ -77,7 +77,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
                              'refer':''})
         if mode == 1:
             for k in srch:
-                if item.has_key(k) and type(item[k]) == unicode:
+                if item.has_key(k) and type(item[k]) == unicode or str:
                     deeplinks[item.link] = {'mined_links_%s' % k:linkmine(item.summary)}
         
     if len(messages) == 0:
