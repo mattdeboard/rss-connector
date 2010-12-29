@@ -54,7 +54,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         This time is determined by getting the time the most recent article was last updated.
         Only links added or updated after last_reference are returned to the user. If there
         are no new links, an error is logged and an empty dictionary object is returned.'''
-    
+
     deeplinks = {}
     messages = []
     feed = feedparser.parse(feedurl)
@@ -77,8 +77,8 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
                              'refer':''})
         if mode == 1:
             for k in srch:
-                if item.has_key(k) and type(item[k]) == str:
-                    deeplinks[item.link] = {'mined_links_%s':linkmine(item.summary)} % k            
+                if item.has_key(k) and type(item[k]) == unicode:
+                    deeplinks[item.link] = {'mined_links_%s' % k:linkmine(item.summary)}
         
     if len(messages) == 0:
         logger.error("%s doesn't have anything new for us." % feed.feed.title) 
