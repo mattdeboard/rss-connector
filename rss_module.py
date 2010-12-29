@@ -58,17 +58,25 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     deeplinks = {}
     messages = []
     feed = feedparser.parse(feedurl)
+    try:
+        a,b = bozocheck(feed)
+    except TypeError:
+        pass
+
     #Any of the items in srch can contain body text to parse for links
     srch = ['content', 'summary', 'subtitle'] 
     
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
     
-    try: assert feed.feed.has_key('title')
+    try:
+        assert feed.feed.has_key('title')
     except AssertionError:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
         return {'messages':[],'last_reference':last_reference, 'protected':False}
+
     for item in feed.entries:
+        print item.keys()
         if timegm(item.updated_parsed) > last_reference:
             messages.append({'url':item.link,
                              'timestamp':timegm(item.updated_parsed),
@@ -77,15 +85,17 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
                              'refer':''})
         if mode == 1:
             for k in srch:
-                if item.has_key(k) and type(item[k]) == unicode or str:
+                if item.has_key(k) and type(item[k]) == (unicode or str):
                     deeplinks[item.link] = {'mined_links_%s' % k:linkmine(item[k])}
         
     if len(messages) == 0:
-        if not g.bozo:
+        if not a:
             logger.error("%s doesn't have anything new for us." % feed.feed.title) 
             return {'messages':[], 'last_reference':last_reference, 'protected':False}
         else:
-            logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" % (feed.feed.title, g.bozo_exception.getMessage() + "on line %d" % g.bozo_exception.getLineNumber()) 
+            logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" %
+                           (feed.feed.title, a) +
+                           "on line %d" % b) 
             return {'messages':[], 'last_reference':last_reference, 'protected':False}
                            
     messages.sort(key=itemgetter('timestamp'))
@@ -101,5 +111,9 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
 
 def linkmine(summary):
     return [item[2] for item in html.iterlinks(summary)]
-    
-    
+
+def bozocheck(feed):
+    if feed.bozo:
+        return feed.bozo_exception.getMessage(),feed.bozo_exception.getLineNumber()
+    else:
+        return
