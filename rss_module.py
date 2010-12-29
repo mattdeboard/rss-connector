@@ -4,13 +4,6 @@ from calendar import timegm
 from time import gmtime
 from operator import itemgetter
 from lxml import html
-#To-Do:
-# 
-# 
-# 3. Implement "mode 1" (deep link-mining) capabilities
-# 
-# 
-#
 
 class TestSequenceFunctions(unittest.TestCase):
 
