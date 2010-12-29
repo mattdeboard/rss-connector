@@ -81,9 +81,13 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
                     deeplinks[item.link] = {'mined_links_%s' % k:linkmine(item.summary)}
         
     if len(messages) == 0:
-        logger.error("%s doesn't have anything new for us." % feed.feed.title) 
-        return {'messages':[], 'last_reference':last_reference, 'protected':False}
-        
+        if not g.bozo:
+            logger.error("%s doesn't have anything new for us." % feed.feed.title) 
+            return {'messages':[], 'last_reference':last_reference, 'protected':False}
+        else:
+            logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" % (feed.feed.title, g.bozo_exception.getMessage() + "on line %d" % g.bozo_exception.getLineNumber()) 
+            return {'messages':[], 'last_reference':last_reference, 'protected':False}
+                           
     messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
     
