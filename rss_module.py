@@ -58,6 +58,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     deeplinks = {}
     messages = []
     feed = feedparser.parse(feedurl)
+
     try:
         a,b = bozocheck(feed)
     except TypeError:
@@ -76,7 +77,6 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         return {'messages':[],'last_reference':last_reference, 'protected':False}
 
     for item in feed.entries:
-        print item.keys()
         if timegm(item.updated_parsed) > last_reference:
             messages.append({'url':item.link,
                              'timestamp':timegm(item.updated_parsed),
@@ -91,12 +91,11 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     if len(messages) == 0:
         if not a:
             logger.error("%s doesn't have anything new for us." % feed.feed.title) 
-            return {'messages':[], 'last_reference':last_reference, 'protected':False}
         else:
             logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" %
                            (feed.feed.title, a) +
                            "on line %d" % b) 
-            return {'messages':[], 'last_reference':last_reference, 'protected':False}
+        return {'messages':[], 'last_reference':last_reference, 'protected':False}
                            
     messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
