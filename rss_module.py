@@ -3,6 +3,7 @@ import feedparser
 from calendar import timegm
 from time import gmtime
 from operator import itemgetter
+from lxml import html
 #To-Do:
 # 
 # 
@@ -40,7 +41,7 @@ class TestSequenceFunctions(unittest.TestCase):
         test_feed = rssdownload(self.username, self.feedurl_valid, self.future)
         self.assertTrue(len(test_feed['messages'])==0)
 
-def rssdownload(username, feedurl, last_reference=0):
+def rssdownload(username, feedurl, last_reference=0, mode=0):
     ''' --> rssdownload(username, feedurl, last_reference=0)
 
         'username' is used exclusively for logging purposes at this time.
@@ -53,9 +54,12 @@ def rssdownload(username, feedurl, last_reference=0):
         This time is determined by getting the time the most recent article was last updated.
         Only links added or updated after last_reference are returned to the user. If there
         are no new links, an error is logged and an empty dictionary object is returned.'''
-
+    
+    deeplinks = {}
     messages = []
     feed = feedparser.parse(feedurl)
+    #Any of the items in srch can contain body text to parse for links
+    srch = ['content', 'summary', 'subtitle'] 
     
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
@@ -71,16 +75,27 @@ def rssdownload(username, feedurl, last_reference=0):
                              'description':item.title,
                              'extra':feed.feed.title,
                              'refer':''})
+        if mode == 1:
+            for k in srch:
+                if item.has_key(k) and type(item[k]) == str:
+                    deeplinks[item.link] = {'mined_links_%s':linkmine(item.summary)} % k            
         
     if len(messages) == 0:
         logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         return {'messages':[], 'last_reference':last_reference, 'protected':False}
-
+        
     messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
     
-    return{'messages':messages,
-           'last_reference':last_ref,
-           'protected':False}
+    feed_data = {'messages':messages,
+                 'last_reference':last_ref,
+                 'protected':False}
 
+    if len(deeplinks):
+        return feed_data, deeplinks
+    else: return feed_data
+
+def linkmine(summary):
+    return [item[2] for item in html.iterlinks(summary)]
+    
     
