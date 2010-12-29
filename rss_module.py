@@ -53,7 +53,11 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         'last_reference' is the Unix time (UTC Epoch) of the last time this URL was polled.
         This time is determined by getting the time the most recent article was last updated.
         Only links added or updated after last_reference are returned to the user. If there
-        are no new links, an error is logged and an empty dictionary object is returned.'''
+        are no new links, an error is logged and an empty dictionary object is returned.
+
+        mode 0 = default. mode 1 = will search the feed entries for some fields commonly used
+        to contain body text. If these fields are found, they will be parsed for links, and be
+        returned from this function as a separate dictionary object.'''
 
     deeplinks = {}
     messages = []
