@@ -57,7 +57,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     feed = feedparser.parse(feedurl)
 
     #Any of the items in srch can contain body text to parse for links
-    srch = ['content', 'summary', 'subtitle'] 
+    srch = ['content', 'summary', 'subtitle', 'description'] 
     
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
