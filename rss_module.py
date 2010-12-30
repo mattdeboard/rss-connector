@@ -52,7 +52,6 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         to contain body text. If these fields are found, they will be parsed for links, and be
         returned from this function as a separate dictionary object.'''
 
-    deeplinks = {}
     messages = []
     feed = feedparser.parse(feedurl)
 
