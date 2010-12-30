@@ -90,12 +90,8 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
                            
     messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
-    feed_data = {'messages':messages,
-                 'last_reference':last_ref,
-                 'protected':False}
-
-
-    return feed_data, deeplinks
+   
+    return {'messages':messages, 'last_reference':last_ref, 'protected':False}, deeplinks
 
 def linkmine(summary):
     return [item[2] for item in html.iterlinks(summary)]
