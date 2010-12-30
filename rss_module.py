@@ -66,11 +66,11 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         assert feed.feed.has_key('title')
     except AssertionError:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
-        return {'messages':[],'last_reference':last_reference, 'protected':False}, deeplinks
+        return {'messages':messages,'last_reference':last_reference, 'protected':False}
 
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
-            messages.append({'url':item.link,
+             messages.append({'url':item.link,
                              'timestamp':timegm(item.updated_parsed),
                              'description':item.title,
                              'extra':feed.feed.title,
@@ -78,7 +78,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         if mode == 1:
             for k in srch:
                 if item.has_key(k) and type(item[k]) == (unicode or str):
-                    deeplinks[item.link] = {'mined_links_%s' % k:linkmine(item[k])}
+                    messages[len(messages)-1]['deep_links'] = {'mined_links_%s' % k:linkmine(item[k])}
             
         
     if len(messages) == 0:
@@ -86,12 +86,12 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
             logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         else:
             logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" % (feed.feed.title, g.bozo_exception.getMessage() + "on line %d" % g.bozo_exception.getLineNumber()))
-        return {'messages':[], 'last_reference':last_reference, 'protected':False}, deeplinks
+        return {'messages':messages, 'last_reference':last_reference, 'protected':False}
                            
     messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
    
-    return {'messages':messages, 'last_reference':last_ref, 'protected':False}, deeplinks
+    return {'messages':messages, 'last_reference':last_ref, 'protected':False}
 
 def linkmine(summary):
     return [item[2] for item in html.iterlinks(summary)]
