@@ -70,14 +70,15 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
              messages.append({'url':item.link,
-                             'timestamp':timegm(item.updated_parsed),
-                             'description':item.title,
-                             'extra':feed.feed.title,
-                             'refer':''})
+                              'timestamp':timegm(item.updated_parsed),
+                              'description':item.title,
+                              'extra':feed.feed.title,
+                              'refer':'',
+                              'deep_links':[]})
         if mode == 1:
             for k in srch:
                 if item.has_key(k) and type(item[k]) == (unicode or str):
-                    messages[len(messages)-1]['deep_links'] = {'mined_links_%s' % k:linkmine(item[k])}
+                    messages[len(messages)-1]['deep_links'].append({'mined_links_%s' % k:linkmine(item[k])})
             
         
     if len(messages) == 0:
