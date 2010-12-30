@@ -56,11 +56,6 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     messages = []
     feed = feedparser.parse(feedurl)
 
-    try:
-        a,b = bozocheck(feed)
-    except TypeError:
-        pass
-
     #Any of the items in srch can contain body text to parse for links
     srch = ['content', 'summary', 'subtitle'] 
     
@@ -71,7 +66,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         assert feed.feed.has_key('title')
     except AssertionError:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
-        return {'messages':[],'last_reference':last_reference, 'protected':False}
+        return {'messages':[],'last_reference':last_reference, 'protected':False}, deeplinks
 
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
@@ -84,30 +79,24 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
             for k in srch:
                 if item.has_key(k) and type(item[k]) == (unicode or str):
                     deeplinks[item.link] = {'mined_links_%s' % k:linkmine(item[k])}
+            
         
     if len(messages) == 0:
-        if not a:
+        if not g.bozo:
             logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         else:
-            logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" %
-                           (feed.feed.title, a) +
-                           "on line %d" % b) 
-        return {'messages':[], 'last_reference':last_reference, 'protected':False}
+            logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" % (feed.feed.title, g.bozo_exception.getMessage() + "on line %d" % g.bozo_exception.getLineNumber()))
+        return {'messages':[], 'last_reference':last_reference, 'protected':False}, deeplinks
                            
     messages.sort(key=itemgetter('timestamp'))
     last_ref = messages[len(messages)-1]['timestamp']
-    
     feed_data = {'messages':messages,
                  'last_reference':last_ref,
                  'protected':False}
 
-    return (feed_data, deeplinks)
+
+    return feed_data, deeplinks
 
 def linkmine(summary):
     return [item[2] for item in html.iterlinks(summary)]
 
-def bozocheck(feed):
-    if feed.bozo:
-        return feed.bozo_exception.getMessage(),feed.bozo_exception.getLineNumber()
-    else:
-        return
