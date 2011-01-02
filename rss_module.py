@@ -90,7 +90,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
         return {'messages':messages, 'last_reference':last_reference, 'protected':False}
                            
     messages.sort(key=itemgetter('timestamp'))
-    last_ref = messages[len(messages)-1]['timestamp']
+    last_ref = messages[-1]['timestamp']
    
     return {'messages':messages, 'last_reference':last_ref, 'protected':False}
 
