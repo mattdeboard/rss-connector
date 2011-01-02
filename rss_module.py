@@ -60,10 +60,8 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
-    
-    try:
-        assert feed.feed.has_key('title')
-    except AssertionError:
+
+    if 'title' not in feed.feed:
         logger.error('User %s supplied a URL that does not seem to be a valid RSS feed (%s)' % (username, feedurl))
         return {'messages':messages,'last_reference':last_reference, 'protected':False}
 
@@ -73,12 +71,13 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
                               'timestamp':timegm(item.updated_parsed),
                               'description':item.title,
                               'extra':feed.feed.title,
-                              'refer':'',
-                              'deep_links':[]})
-        if mode == 1:
-            for k in srch:
-                if item.has_key(k) and type(item[k]) == (unicode or str):
-                    messages[len(messages)-1]['deep_links'].append({'mined_links_%s' % k:linkmine(item[k])})
+                              'refer':''})
+            if mode == 1:
+                for k in srch:
+                    if k in item:
+                        for index, item in enumerate(linkmine(item[k])):
+                            link_key = 'deep_link%d' % index
+                            messages[-1][link_key] = item
             
         
     if len(messages) == 0:
@@ -94,5 +93,5 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     return {'messages':messages, 'last_reference':last_ref, 'protected':False}
 
 def linkmine(summary):
-    return [item[2] for item in html.iterlinks(summary)]
+    return (item[2] for item in html.iterlinks(summary))
 
