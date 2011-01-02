@@ -67,17 +67,19 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
 
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
-             messages.append({'url':item.link,
-                              'timestamp':timegm(item.updated_parsed),
-                              'description':item.title,
-                              'extra':feed.feed.title,
-                              'refer':''})
+             message = {'url':item.link,
+                        'timestamp':timegm(item.updated_parsed),
+                        'description':item.title,
+                        'extra':feed.feed.title,
+                        'refer':''}
             if mode == 1:
                 for k in srch:
                     if k in item:
                         for index, item in enumerate(linkmine(item[k])):
                             link_key = 'deep_link%d' % index
-                            messages[-1][link_key] = item
+                            message[link_key] = item
+                            
+            messages.append(message)
             
         
     if len(messages) == 0:
