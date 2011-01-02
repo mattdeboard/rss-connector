@@ -56,7 +56,7 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
     feed = feedparser.parse(feedurl)
 
     #Any of the items in srch can contain body text to parse for links
-    srch = ['content', 'summary', 'subtitle', 'description'] 
+    srch = ('content', 'summary', 'subtitle', 'description')
     
     logger = logging.getLogger('proxy.rss')
     logger.debug("User %s's update URL is %s" % (username, feedurl))
@@ -67,23 +67,22 @@ def rssdownload(username, feedurl, last_reference=0, mode=0):
 
     for item in feed.entries:
         if timegm(item.updated_parsed) > last_reference:
-             message = {'url':item.link,
+            message = {'url':item.link,
                         'timestamp':timegm(item.updated_parsed),
                         'description':item.title,
                         'extra':feed.feed.title,
                         'refer':''}
             if mode == 1:
-                for k in srch:
-                    if k in item:
-                        for index, item in enumerate(linkmine(item[k])):
-                            link_key = 'deep_link%d' % index
-                            message[link_key] = item
+                z = (linkmine(item[k]) for k in srch if k in item)
+                for index, item in enumerate(z):
+                    link_key = 'deep_link%d' % index
+                    message[link_key] = item
                             
             messages.append(message)
             
         
     if len(messages) == 0:
-        if not g.bozo:
+        if not feed.bozo:
             logger.error("%s doesn't have anything new for us." % feed.feed.title) 
         else:
             logger.warning("Malformed data at %s may have  prevented proper update. Exception %s" % (feed.feed.title, g.bozo_exception.getMessage() + "on line %d" % g.bozo_exception.getLineNumber()))
